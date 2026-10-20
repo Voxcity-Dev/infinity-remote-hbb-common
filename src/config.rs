@@ -117,8 +117,17 @@ const CHARS: &[char] = &[
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 ];
 
-pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];
-pub const RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+// Infinity Remote: servidor e chave pública podem vir do ambiente de build
+// (RENDEZVOUS_SERVER / RS_PUB_KEY, lidos por option_env! em tempo de compilação).
+// Sem a variável (ou vazia), vale o padrão do upstream.
+pub const RENDEZVOUS_SERVERS: &[&str] = &[match option_env!("RENDEZVOUS_SERVER") {
+    Some(s) if !s.is_empty() => s,
+    _ => "rs-ny.rustdesk.com",
+}];
+pub const RS_PUB_KEY: &str = match option_env!("RS_PUB_KEY") {
+    Some(k) if !k.is_empty() => k,
+    _ => "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=",
+};
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
 pub const RELAY_PORT: i32 = 21117;
