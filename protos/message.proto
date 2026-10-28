@@ -88,6 +88,10 @@ message LoginRequest {
   string my_platform = 13;
   bytes hwid = 14;
   string avatar = 17;
+  // Infinity Remote: prova de acesso (irp_...) emitida pela API do Infinity para o
+  // técnico com vaga. O computador com o consentimento "acesso sem alguém aqui"
+  // a confere em /remote/api/autorizar-acesso. Número alto para não colidir com o upstream.
+  string infinity_prova = 1001;
 }
 
 message Terminal {
