@@ -124,6 +124,12 @@ pub const RENDEZVOUS_SERVERS: &[&str] = &[match option_env!("RENDEZVOUS_SERVER")
     Some(s) if !s.is_empty() => s,
     _ => "rs-ny.rustdesk.com",
 }];
+/// Infinity Remote: o servidor de rendezvous do build (RENDEZVOUS_SERVER), se houver. Com
+/// ele, a opção custom-rendezvous-server (de --option, --import-config, IPC ou registro) e o
+/// nome do executável não trocam o servidor.
+pub fn servidor_do_build() -> Option<&'static str> {
+    option_env!("RENDEZVOUS_SERVER").filter(|s| !s.trim().is_empty())
+}
 pub const RS_PUB_KEY: &str = match option_env!("RS_PUB_KEY") {
     Some(k) if !k.is_empty() => k,
     _ => "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=",
@@ -920,6 +926,13 @@ impl Config {
     }
 
     pub fn get_rendezvous_server() -> String {
+        if let Some(s) = servidor_do_build() {
+            return if s.contains(':') {
+                s.to_owned()
+            } else {
+                format!("{s}:{RENDEZVOUS_PORT}")
+            };
+        }
         let mut rendezvous_server = EXE_RENDEZVOUS_SERVER.read().unwrap().clone();
         if rendezvous_server.is_empty() {
             rendezvous_server = Self::get_option("custom-rendezvous-server");
@@ -943,6 +956,9 @@ impl Config {
     }
 
     pub fn get_rendezvous_servers() -> Vec<String> {
+        if let Some(s) = servidor_do_build() {
+            return vec![s.to_owned()];
+        }
         let s = EXE_RENDEZVOUS_SERVER.read().unwrap().clone();
         if !s.is_empty() {
             return vec![s];
